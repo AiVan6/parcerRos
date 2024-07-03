@@ -68,10 +68,10 @@ public class Main {
 
             browserContext = browser.newContext(new Browser.NewContextOptions().setIgnoreHTTPSErrors(true));
             Page page = browserContext.newPage();
-            page.waitForTimeout(60000);
+            page.waitForTimeout(30000);
             page.navigate("https://lk.rosreestr.ru/login?redirect=%2F");
             page.waitForLoadState(LoadState.NETWORKIDLE);
-            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("page.png")));
+//            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("page.png")));
 
             boolean flag = true;
             // Заполняем поля логина и пароля
@@ -107,13 +107,13 @@ public class Main {
 
             Page key = browserContext.newPage();
             key.navigate("https://lk.rosreestr.ru/my-keys");
-            key.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("login.png")));
+//            key.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("login.png")));
             key.waitForLoadState(LoadState.NETWORKIDLE);
 
 //            Page page = browserContext.newPage();
             page.navigate("https://lk.rosreestr.ru/request-access-egrn/my-claims");
             page.waitForLoadState(LoadState.NETWORKIDLE);
-            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("page.png")));
+//            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("page.png")));
             System.out.println("Привет, желаю тебе не хорошего дня, а замечательного!");
             DataParser dataParser = new DataParser(page);
 

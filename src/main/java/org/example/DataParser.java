@@ -89,8 +89,7 @@ public class DataParser {
 
         page.navigate("https://lk.rosreestr.ru/request-access-egrn/my-claims");
         page.waitForLoadState(LoadState.NETWORKIDLE);
-
-
+        
 //        long start = System.currentTimeMillis();
         List<ElementHandle> list = page.querySelectorAll("a:text('Скачать')");
         int counter = 0;
@@ -140,17 +139,19 @@ public class DataParser {
 
 
     public void addNumbers(){
-        BufferedReader reader;
+        BufferedReader reader = null;
 
         try {
             reader = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println("File not found");
+            e.printStackTrace();
+//            throw new RuntimeException(e);
         }
         String line;
 //        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("key1.png")));
-//        page.navigate("https://lk.rosreestr.ru/my-keys");
-//        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.navigate("https://lk.rosreestr.ru/my-keys");
+        page.waitForLoadState(LoadState.NETWORKIDLE);
 //        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("key.png")));
         try {
             while ((line = reader.readLine()) != null) {
