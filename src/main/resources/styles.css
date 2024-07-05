@@ -1,0 +1,12 @@
+.all_padding {
+    -fx-padding: 10;  /* Отступы внутри элементов */
+    -fx-font-size: 20;  /* Размер шрифта */
+}
+
+.left_bottom {
+    -fx-alignment: center-left;
+}
+
+.text_field_large {
+    -fx-font-size: 20;  /* Размер шрифта для TextField */
+}

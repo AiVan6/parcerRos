@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="parserRosreestrKad:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/parserRosreestrKad_jar</output-path>
+    <root id="archive" name="parserRosreestrKad.jar">
+      <element id="module-output" name="parserRosreestrKad" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/microsoft/playwright/driver/1.44.0/driver-1.44.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/microsoft/playwright/driver-bundle/1.44.0/driver-bundle-1.44.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/21.0.3/javafx-controls-21.0.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/21.0.3/javafx-fxml-21.0.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/microsoft/playwright/playwright/1.44.0/playwright-1.44.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/21.0.3/javafx-graphics-21.0.3-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/21.0.3/javafx-graphics-21.0.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/21.0.3/javafx-base-21.0.3-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-io/commons-io/2.16.1/commons-io-2.16.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/21.0.3/javafx-fxml-21.0.3-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-base/21.0.3/javafx-base-21.0.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/21.0.3/javafx-controls-21.0.3-linux.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/kordamp/bootstrapfx/bootstrapfx-core/0.4.0/bootstrapfx-core-0.4.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
