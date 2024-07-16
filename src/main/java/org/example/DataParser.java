@@ -7,9 +7,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class DataParser {
 
@@ -41,21 +41,13 @@ public class DataParser {
 
     public boolean checkId(String obj){
         String key = obj.replaceAll("\\D","");
-        boolean flag = false;
-        if(map.isEmpty()) {
-            map.put(key, obj);
-        }else {
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                if (entry.getKey().equals(key)) {
-                    flag = true;
-                }
-            }
-            if(!flag){
-                map.put(key, obj);
-            }
+        if(map.containsKey(key)) {
+            return true;
         }
-//        System.out.println(map.size());
-        return flag;
+        else {
+            map.put(key,obj);
+            return false;
+        }
     }
 
     public boolean isFile(File file) {
@@ -85,61 +77,75 @@ public class DataParser {
         return flag;
     }
 
-    public void downloadData(){
-
+    public void downloadData() {
         page.navigate("https://lk.rosreestr.ru/request-access-egrn/my-claims");
         page.waitForLoadState(LoadState.NETWORKIDLE);
-        
-//        long start = System.currentTimeMillis();
-        List<ElementHandle> list = page.querySelectorAll("a:text('Скачать')");
-        int counter = 0;
+
+        final int[] counter = {0};
 
         boolean flag = true;
         while (flag) {
-//            System.out.println("list " + list.size());
-            for (ElementHandle link : list) {
-//                System.out.println("Текст ссылки");
+            List<ElementHandle> list = page.querySelectorAll("a:text('Скачать')");
+//            System.out.println("list size: " + list.size());
 
-                boolean success = false;
-                while (!success) {
+            if(!list.isEmpty()) {
+
+                for (ElementHandle link : list) {
+                    CompletableFuture<Void> thread = CompletableFuture.runAsync(() -> {
+                        boolean success = false;
+                        while (!success) {
+                            try {
+                                Download download = page.waitForDownload(new Page.WaitForDownloadOptions().setTimeout(60000), () -> {
+                                    link.click();
+//                                    System.out.println("link: " + link);
+                                });
+
+                                if (checkId(download.url())) {
+                                    continue;
+                                }
+
+                                download.saveAs(Paths.get("Загрузки/", counter[0] + "_" + download.suggestedFilename()));
+                                success = true;
+                                System.out.println("Скачал");
+                                counter[0]++;
+                            } catch (TimeoutError ignored) {
+                                System.out.println("Не скачал");
+                            }
+                        }
+                    });
+//                    threads.add(thread);
+//                    thread.start();
                     try {
-
-                        Download download = page.waitForDownload(new Page.WaitForDownloadOptions().setTimeout(20000), () -> {
-                            link.click();
-                            page.waitForLoadState(LoadState.NETWORKIDLE);
-                        });
-                        if(checkId(download.url()))
-                            continue;
-
-                        download.saveAs(Paths.get( "Загрузки/" ,counter +"_"+download.suggestedFilename()));
-                        counter++;
-//                        System.out.println("download " + download.url());
-//                        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("step.png")));
-                        success = true;
-                        System.out.println("Скачал");
-                        downloaded++;
-
-                    } catch (TimeoutError ignored) {}
+                        thread.get();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } catch (ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
 
-            ElementHandle elementHandle = page.querySelector("button.rros-ui-lib-table-pagination__btn.rros-ui-lib-table-pagination__btn--next[data-id='']");
-            if(elementHandle.isVisible()) {
-                elementHandle.click();
-//                System.out.println("Кнопка есть я нажал");
+
+                // Check if there is a next page
+                ElementHandle nextButton = page.querySelector("button.rros-ui-lib-table-pagination__btn.rros-ui-lib-table-pagination__btn--next[data-id='']");
+                if (nextButton != null && nextButton.isVisible()) {
+                    nextButton.click();
+                    page.waitForLoadState(LoadState.NETWORKIDLE);
+                } else {
+                    flag = false;
+                }
             }else {
-                flag = false;
-//                System.out.println("Кнопки нету");
+                System.out.println("На пути попалась капча и я не смог её решить");
+                flag=false;
+                System.out.println("Решите капчу на сайте и перезапустите меня");
             }
-
         }
-        long end = System.currentTimeMillis();
-//        System.out.print("time: " + (end - start)/1000 + "s");
     }
+
 
 
     public void addNumbers(){
         BufferedReader reader = null;
+        FileWriter writer = null;
 
         try {
             reader = new BufferedReader(new FileReader(file));
@@ -154,6 +160,8 @@ public class DataParser {
         page.waitForLoadState(LoadState.NETWORKIDLE);
 //        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("key.png")));
         try {
+            writer = new FileWriter(new File("notSent.txt"));
+
             while ((line = reader.readLine()) != null) {
                 try {
                     boolean flag = true;
@@ -164,38 +172,17 @@ public class DataParser {
 
                     page.waitForLoadState(LoadState.NETWORKIDLE);
 
-//                        page.waitForTimeout(1000);
-                    while (flag) {
-                        try {
-                            ElementHandle obj = page.waitForSelector(".rros-ui-lib-table__rows");//, new Page.WaitForSelectorOptions().setTimeout(3000)
-                            if (obj != null) {
-                                obj.click();
-                            }
-                            page.waitForTimeout(1000);
-                            ElementHandle error = page.querySelector(".rros-ui-lib-errors");
-
-                            if (error == null) {
-//                                System.out.println("nety");
-//                                page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("kyyyy.png")));
-                                flag = false;
-                            }else {
-//                                System.out.println("est");
-//                                    page.waitForTimeout(1000);
-//                                    obj.click();
-                                error.evaluate("element => element.remove()");
-//                                page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("buttonClick.png")));
-                                page.waitForTimeout(3000);
-                                continue;
-                            }
-                        }catch (TimeoutError e){
-//                            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("timeout.png")));
-                            System.out.println("Time out");
-                            flag = true;
-                        }
-
+                        page.waitForTimeout(10000);
+//                    while (flag) {
+                    ElementHandle obj = page.waitForSelector(".rros-ui-lib-table__rows");//, new Page.WaitForSelectorOptions().setTimeout(3000)
+                    if (obj != null) {
+                        obj.click();
                     }
+                    page.waitForTimeout(5000);
+//                    ElementHandle error = page.querySelector(".rros-ui-lib-errors");
+                        
 
-                    page.waitForLoadState(LoadState.NETWORKIDLE);
+//                    page.waitForLoadState(LoadState.NETWORKIDLE);
 //                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("ky1.png")));
 
                     ElementHandle kagElem = page.waitForSelector("button[class='build-card-wrapper__header-wrapper__action-button " +
@@ -207,16 +194,33 @@ public class DataParser {
                     page.click(".rros-ui-lib-link_inherit");
                     page.waitForLoadState(LoadState.NETWORKIDLE);
                     page.waitForTimeout(5000);
-
                     sent++;
                 } catch (PlaywrightException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
+                    System.out.println("Не добавил");
                     notSent++;
+                    System.out.println(line);
+                    writer.write(line);
+//                    bufferedWriter.newLine();
+                    page.waitForTimeout(3000);
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
             notSent++;
+        }
+        finally {
+            try {
+                if(reader != null) {
+                    reader.close();
+                }
+                if(writer != null){
+                    writer.close();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 

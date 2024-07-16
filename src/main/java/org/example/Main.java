@@ -102,7 +102,10 @@ public class Main {
             System.out.print("Введите код подтверждения: ");
             Scanner codeScanner = new Scanner(System.in);
             page.fill("input[type='tel']", codeScanner.nextLine());
-            page.waitForLoadState(LoadState.NETWORKIDLE);
+            page.waitForTimeout(30000);
+//            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("login.png")));
+
+//            page.waitForLoadState(LoadState.NETWORKIDLE);
             System.out.println();
 
             Page key = browserContext.newPage();
