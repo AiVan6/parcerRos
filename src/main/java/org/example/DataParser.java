@@ -19,6 +19,7 @@ public class DataParser {
 
     private long sent;
     private long downloaded;
+    private long notDownloaded;
     private long notSent;
     private final Page page;
 
@@ -27,6 +28,7 @@ public class DataParser {
         map = new HashMap<>();
         sent = 0;
         downloaded = 0;
+        notDownloaded = 0;
         notSent = 0;
         this.page = page;
     }
@@ -93,9 +95,10 @@ public class DataParser {
                 for (ElementHandle link : list) {
                     CompletableFuture<Void> thread = CompletableFuture.runAsync(() -> {
                         boolean success = false;
-                        while (!success) {
+//                        while (!success) {
+                        for (int i = 0; i < 10; i++){
                             try {
-                                Download download = page.waitForDownload(new Page.WaitForDownloadOptions().setTimeout(60000), () -> {
+                                Download download = page.waitForDownload(new Page.WaitForDownloadOptions().setTimeout(30000), () -> {
                                     link.click();
 //                                    System.out.println("link: " + link);
                                 });
@@ -106,10 +109,18 @@ public class DataParser {
 
                                 download.saveAs(Paths.get("Загрузки/", counter[0] + "_" + download.suggestedFilename()));
                                 success = true;
-                                System.out.println("Скачал");
+                                downloaded++;
+//                                System.out.println("Скачал");
                                 counter[0]++;
                             } catch (TimeoutError ignored) {
+//                                System.out.println("Не скачал");
+                            }
+                            if(success) {
+                                System.out.println("Всего скачано: " + downloaded);
+                                break;
+                            }else if (i==9){
                                 System.out.println("Не скачал");
+                                notDownloaded++;
                             }
                         }
                     });
