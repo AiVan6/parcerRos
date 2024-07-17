@@ -110,7 +110,6 @@ public class DataParser {
                                 download.saveAs(Paths.get("Загрузки/", counter[0] + "_" + download.suggestedFilename()));
                                 success = true;
                                 downloaded++;
-//                                System.out.println("Скачал");
                                 counter[0]++;
                             } catch (TimeoutError ignored) {
 //                                System.out.println("Не скачал");
