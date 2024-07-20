@@ -22,6 +22,7 @@ public class DataParser {
     private long notDownloaded;
     private long notSent;
     private final Page page;
+//    private final BrowserContext context;
 
 
     public DataParser(Page page){
@@ -31,6 +32,7 @@ public class DataParser {
         notDownloaded = 0;
         notSent = 0;
         this.page = page;
+//        this.context = context;
     }
 
     public long getSent(){
@@ -50,6 +52,42 @@ public class DataParser {
             map.put(key,obj);
             return false;
         }
+    }
+
+    public void authorization(){
+        boolean flag = true;
+        // Заполняем поля логина и пароля
+        while (flag) {
+            System.out.print("Введите логин: ");
+            Scanner loginScanner = new Scanner(System.in);
+            String loginStr = loginScanner.nextLine();
+            ElementHandle login = page.querySelector("#login");
+            if(login != null){
+                login.fill("");
+                login.fill(loginStr);
+            }
+//            page.getByLabel("#login").fill(loginStr);
+
+            System.out.print("Введите пароль: ");
+            String password = loginScanner.nextLine();
+            ElementHandle passwordEH = page.querySelector("#password");
+            if(passwordEH != null){
+                passwordEH.fill("");
+                passwordEH.fill(password);
+            }
+//            page.getByLabel("#password").fill(password);
+
+            if(!password.isEmpty() && !loginStr.isEmpty()){flag=false;}
+        }
+        page.click("button[class = 'plain-button plain-button_wide']");
+        System.out.println();
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+
+        // Вводим код подтверждения вручную
+        System.out.print("Введите код подтверждения: ");
+        Scanner codeScanner = new Scanner(System.in);
+        page.fill("input[type='tel']", codeScanner.nextLine());
+        page.waitForTimeout(30000);
     }
 
     public boolean isFile(File file) {
@@ -98,6 +136,12 @@ public class DataParser {
 //                        while (!success) {
                         for (int i = 0; i < 10; i++){
                             try {
+                                boolean sessionExpired = page.innerText("body").contains("Время сессии истекло");
+                                if(sessionExpired){
+                                    Main.checkSession(page);
+                                }
+
+
                                 Download download = page.waitForDownload(new Page.WaitForDownloadOptions().setTimeout(30000), () -> {
                                     link.click();
 //                                    System.out.println("link: " + link);
@@ -120,6 +164,7 @@ public class DataParser {
                             }else if (i==9){
                                 System.out.println("Не скачал");
                                 notDownloaded++;
+                                page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("file.png")));
                             }
                         }
                     });
