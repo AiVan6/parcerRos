@@ -17,10 +17,10 @@ public class DataParser {
 
     private File file;
 
-    private long sent;
-    private long downloaded;
-    private long notDownloaded;
-    private long notSent;
+    private int sent;
+    private int downloaded;
+    private int notDownloaded;
+    private int notSent;
     private final Page page;
 //    private final BrowserContext context;
 
@@ -54,42 +54,6 @@ public class DataParser {
         }
     }
 
-    public void authorization(){
-        boolean flag = true;
-        // Заполняем поля логина и пароля
-        while (flag) {
-            System.out.print("Введите логин: ");
-            Scanner loginScanner = new Scanner(System.in);
-            String loginStr = loginScanner.nextLine();
-            ElementHandle login = page.querySelector("#login");
-            if(login != null){
-                login.fill("");
-                login.fill(loginStr);
-            }
-//            page.getByLabel("#login").fill(loginStr);
-
-            System.out.print("Введите пароль: ");
-            String password = loginScanner.nextLine();
-            ElementHandle passwordEH = page.querySelector("#password");
-            if(passwordEH != null){
-                passwordEH.fill("");
-                passwordEH.fill(password);
-            }
-//            page.getByLabel("#password").fill(password);
-
-            if(!password.isEmpty() && !loginStr.isEmpty()){flag=false;}
-        }
-        page.click("button[class = 'plain-button plain-button_wide']");
-        System.out.println();
-        page.waitForLoadState(LoadState.NETWORKIDLE);
-
-        // Вводим код подтверждения вручную
-        System.out.print("Введите код подтверждения: ");
-        Scanner codeScanner = new Scanner(System.in);
-        page.fill("input[type='tel']", codeScanner.nextLine());
-        page.waitForTimeout(30000);
-    }
-
     public boolean isFile(File file) {
         System.out.println();
         boolean flag = true;
@@ -117,7 +81,7 @@ public class DataParser {
         return flag;
     }
 
-    public void downloadData() {
+    public void downloadData(int el, int pageNum) {
         page.navigate("https://lk.rosreestr.ru/request-access-egrn/my-claims");
         page.waitForLoadState(LoadState.NETWORKIDLE);
 
@@ -129,16 +93,33 @@ public class DataParser {
 //            System.out.println("list size: " + list.size());
 
             if(!list.isEmpty()) {
+                if(pageNum != 0){
+                    for(int i = 0; i < pageNum; i++) {
+                        if(!flag)
+                            break;
+                        flag = nextPageClick();
+                    }
+                }
 
                 for (ElementHandle link : list) {
                     CompletableFuture<Void> thread = CompletableFuture.runAsync(() -> {
                         boolean success = false;
 //                        while (!success) {
                         for (int i = 0; i < 10; i++){
+                            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod.png")));
                             try {
                                 boolean sessionExpired = page.innerText("body").contains("Время сессии истекло");
+                                        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod1.png")));
                                 if(sessionExpired){
+                                    System.out.println();
                                     Main.checkSession(page);
+                                    int pageTemp = downloaded/10;
+                                    int elem = downloaded%10;
+                                    System.out.println(pageTemp);
+                                    System.out.println(elem);
+                                    downloadData(elem,pageTemp);
+                                            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod.png")));
+
                                 }
 
 
@@ -171,23 +152,17 @@ public class DataParser {
 //                    threads.add(thread);
 //                    thread.start();
                     try {
+//                        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("visible.png")));
                         thread.get();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    } catch (ExecutionException e) {
+                    } catch (InterruptedException | ExecutionException e) {
+//                        e.printStackTrace();
                         throw new RuntimeException(e);
                     }
                 }
 
 
                 // Check if there is a next page
-                ElementHandle nextButton = page.querySelector("button.rros-ui-lib-table-pagination__btn.rros-ui-lib-table-pagination__btn--next[data-id='']");
-                if (nextButton != null && nextButton.isVisible()) {
-                    nextButton.click();
-                    page.waitForLoadState(LoadState.NETWORKIDLE);
-                } else {
-                    flag = false;
-                }
+                flag = nextPageClick();
             }else {
                 System.out.println("На пути попалась капча и я не смог её решить");
                 flag=false;
@@ -196,6 +171,16 @@ public class DataParser {
         }
     }
 
+    public boolean nextPageClick(){
+        ElementHandle nextButton = page.querySelector("button.rros-ui-lib-table-pagination__btn.rros-ui-lib-table-pagination__btn--next[data-id='']");
+        if (nextButton != null && nextButton.isVisible()) {
+            nextButton.click();
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
     public void addNumbers(){
