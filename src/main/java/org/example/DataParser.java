@@ -101,12 +101,15 @@ public class DataParser {
                     }
                 }
 
+                page.waitForTimeout(1000);
                 for (ElementHandle link : list) {
                     CompletableFuture<Void> thread = CompletableFuture.runAsync(() -> {
                         boolean success = false;
 //                        while (!success) {
+                        page.waitForTimeout(1000);
+
                         for (int i = 0; i < 10; i++){
-                            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod.png")));
+//                            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod.png")));
                             try {
                                 boolean sessionExpired = page.innerText("body").contains("Время сессии истекло");
                                         page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod1.png")));
@@ -118,7 +121,7 @@ public class DataParser {
                                     System.out.println(pageTemp);
                                     System.out.println(elem);
                                     downloadData(elem,pageTemp);
-                                            page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod.png")));
+                                    page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod.png")));
 
                                 }
 
@@ -147,6 +150,7 @@ public class DataParser {
                                 notDownloaded++;
                                 page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("file.png")));
                             }
+                            page.waitForTimeout(1000);
                         }
                     });
 //                    threads.add(thread);

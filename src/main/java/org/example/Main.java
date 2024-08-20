@@ -29,17 +29,40 @@ public class Main {
         page.reload();
         page.waitForLoadState(LoadState.NETWORKIDLE);
         page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("auth.png")));
-
+        //создать новый контекст
         browserContext = browser.newContext(
                 new Browser.NewContextOptions().setStorageStatePath(path).setIgnoreHTTPSErrors(true));
-
+        page.waitForLoadState(LoadState.NETWORKIDLE);
         //            BrowserContext context = browser.newContext(new Browser.NewContextOptions().setStorageStatePath(path));
+
+        Page newPage = browserContext.newPage();
+        newPage.navigate("https://lk.rosreestr.ru/request-access-egrn/my-claims");
+        newPage.waitForLoadState(LoadState.NETWORKIDLE);
+        newPage.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("check.png")));
 
 //        page.navigate("https://lk.rosreestr.ru/request-access-egrn/my-claims");
 //        page.waitForLoadState(LoadState.NETWORKIDLE);
-//        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("perehod.png")));
+        page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("check.png")));
+
+        boolean sessionValid = checkSessionValidity(newPage);
+        if (!sessionValid) {
+            System.out.println("Сессия невалидна после восстановления.");
+        }
 
 
+        boolean sessionValidPrev = checkSessionValidity(page);
+        if (!sessionValidPrev) {
+            System.out.println("Сессия старая невалидна после восстановления.");
+        }
+
+    }
+
+
+    private static boolean checkSessionValidity(Page page) {
+        // Проверка на наличие конкретных данных или cookies, подтверждающих валидность сессии
+        // Например, проверка на наличие определенного текста на странице или валидных cookies
+        String pageContent = page.content();
+        return pageContent.contains("ExpectedContent");
     }
 
     public static void main(String[] args) {
